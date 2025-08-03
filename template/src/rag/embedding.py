@@ -2,23 +2,42 @@ from docling.document_converter import DocumentConverter
 import os
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from docling.chunking import HybridChunker
-from pprint import pprint
+from lancedb.pydantic import LanceModel, Vector
+from lancedb.embeddings import get_registry
+import lancedb
+from typing import List, Any
 
 
-# load env
+# # load env
 load_dotenv(dotenv_path=".env") 
 
-# embedding model and vectorDB
+# Setup LanceDB
+db = lancedb.connect("src/lancedb")  # Database path
+func = get_registry().get("openai").create(name="text-embedding-3-large")
+# ndims = func.ndims()  # Compute dimensions outside the class
 
-embeddings = OpenAIEmbeddings(
-    model="text-embedding-3-small"
-)
+# Define metadata schema
+class ChunkMetadata(LanceModel):
+    filename: str | None
+    category: str | None
+    chunk_index: int | None
 
-# 1. start getting the data and transform it + categories
+# Define table schema
+class Chunks(LanceModel):
+    text: str = func.SourceField()
+    vector: Vector(func.ndims()) = func.VectorField()  # type: ignore
+    filename: str | None = None
+    category: str | None = None  
+    chunk_index: int | None = None
+
+# Create or overwrite table
+table = db.create_table("docling", schema=Chunks, mode="overwrite")
+
+# 2. start getting the data and transform it + categories
 source = "src/data"  # dir path
 result = []
 converter = DocumentConverter()
@@ -43,7 +62,6 @@ for filename in os.listdir(source):
 #     print("Source file:", item["name_of_file"])
 #     print("Content (markdown):", item["document"].document.export_to_markdown())
 
-
 # 2. start tokenizing the data
 
 # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -67,18 +85,22 @@ for item in result:
     # Wrap each chunk and add chunk_index, makes it
     # easier to show to the user the source
     for idx, chunk in enumerate(chunks):
-        all_chunks.append(
-            Document(
-                page_content=chunk.text,
-                metadata={
-                    "category": category,
-                    "filename": source,
-                    "chunk_index": idx
-                }
-            )
-        )
+        # Create the chunk data as a flat dictionary (LanceDB doesn't support nested metadata)
+        chunk_data = {
+            "text": chunk.text,
+            "filename": source,
+            "category": category,
+            "chunk_index": idx
+        }
+        all_chunks.append(chunk_data)
 
-for chunk in all_chunks:
-    print(f"\n--- Chunk from {chunk.metadata['filename']}, category: {chunk.metadata['category']}, at index: {chunk.metadata['chunk_index']} ---")
-    # print({chunk.page_content})
-    
+# for chunk in all_chunks:
+#     print(f"\n--- Chunk from {chunk.metadata['filename']}, category: {chunk.metadata['category']}, at index: {chunk.metadata['chunk_index']} ---")
+#     print({chunk.page_content})
+
+# create a chroma db with all the embeddings
+table.add(all_chunks)
+
+print(f"✅ Added {len(all_chunks)} chunks to LanceDB table '{table.name}'")
+print(f"📂 Table now has {table.count_rows()} rows")
+
