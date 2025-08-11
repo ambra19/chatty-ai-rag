@@ -1,16 +1,15 @@
 from docling.document_converter import DocumentConverter
 import os
-from langchain_openai import OpenAIEmbeddings
+# from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+# from langchain_chroma import Chroma
+# from langchain_core.documents import Document
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
 from docling.chunking import HybridChunker
 from lancedb.pydantic import LanceModel, Vector
 from lancedb.embeddings import get_registry
 import lancedb
-from typing import List, Any
-
+# from typing import List, Any
 
 # # load env
 load_dotenv(dotenv_path=".env") 
@@ -37,7 +36,7 @@ class Chunks(LanceModel):
 # Create or overwrite table
 table = db.create_table("docling", schema=Chunks, mode="overwrite")
 
-# 2. start getting the data and transform it + categories
+# start getting the data and transform it + categories
 source = "src/data"  # dir path
 result = []
 converter = DocumentConverter()
@@ -62,7 +61,7 @@ for filename in os.listdir(source):
 #     print("Source file:", item["name_of_file"])
 #     print("Content (markdown):", item["document"].document.export_to_markdown())
 
-# 2. start tokenizing the data
+# start tokenizing the data
 
 # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 chunker = HybridChunker(
@@ -82,10 +81,8 @@ for item in result:
     # Chunk the document
     chunks = list(chunker.chunk(dl_doc=docling_doc))
 
-    # Wrap each chunk and add chunk_index, makes it
-    # easier to show to the user the source
+    # Wrap each chunk and add chunk_index
     for idx, chunk in enumerate(chunks):
-        # Create the chunk data as a flat dictionary (LanceDB doesn't support nested metadata)
         chunk_data = {
             "text": chunk.text,
             "filename": source,
@@ -101,6 +98,6 @@ for item in result:
 # create a chroma db with all the embeddings
 table.add(all_chunks)
 
-print(f"✅ Added {len(all_chunks)} chunks to LanceDB table '{table.name}'")
-print(f"📂 Table now has {table.count_rows()} rows")
+# print(f"Added {len(all_chunks)} chunks to LanceDB table '{table.name}'")
+# print(f"Table now has {table.count_rows()} rows")
 

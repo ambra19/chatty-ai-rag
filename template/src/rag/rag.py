@@ -1,16 +1,19 @@
-import streamlit as st
-from openai import OpenAI
+"""Streamlit RAG app over LanceDB table `docling`."""
+
+import os
+
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
 import lancedb
 from lancedb.embeddings import get_registry
-import os
+from openai import OpenAI
+import streamlit as st
 
 # Load environment variables
 load_dotenv()
 client = OpenAI()
 
-DB_DIR = "src/lancedb"  # Updated path to match your embedding script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_DIR = os.path.abspath(os.path.join(BASE_DIR, "../lancedb"))
 TABLE_NAME = "docling"
 
 # Initialize LanceDB connection
@@ -22,11 +25,10 @@ def init_db():
     # Check if table exists
     try:
         table = db.open_table(TABLE_NAME)
-        
-        # Set up the embedding function for search
+        # Optional: set up embedding function reference if needed elsewhere
         func = get_registry().get("openai").create(name="text-embedding-3-large")
-        table = table.create_index("vector", config=lancedb.index.IvfPq())
-        
+        # Avoid creating an index here to prevent API/version mismatches.
+        # LanceDB will still search without an index for smaller datasets.
         return table, func
     except Exception as e:
         st.error(f"Could not open LanceDB table '{TABLE_NAME}'. Make sure you've run the embedding script first. Error: {e}")
@@ -69,7 +71,7 @@ def get_context(query: str, table, func, num_results: int = 3) -> str:
 def get_chat_response(messages, context: str) -> str:
     """Get streaming response from OpenAI API with retrieved context."""
     system_prompt = f"""You are a helpful assistant that answers questions based only on the provided context.
-If the context does not contain enough information, reply that you don't know. Always greet the user back if they greet you.
+If the context does not contain enough information, reply that you don't have information about that. Always greet the user back if they greet you.
 
 Context:
 {context}
@@ -80,6 +82,7 @@ Context:
     # Streaming response from OpenAI
     stream = client.chat.completions.create(
         model="gpt-4o-mini",
+        # model="gpt-5-mini",
         messages=messages_with_context,
         temperature=0.7,
         stream=True,
@@ -89,7 +92,7 @@ Context:
     return response
 
 # Initialize Streamlit app
-st.title("📚 Document Q&A (LanceDB RAG)")
+st.title("📚 Document Retrieval System")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -101,8 +104,8 @@ table, func = init_db()
 if table is not None:
     try:
         row_count = table.count_rows()
-        st.success(f"✅ Connected to LanceDB - {row_count} chunks available")
-    except:
+        st.success(f"✅ Connected to database")
+    except Exception:
         st.warning("⚠️ Connected to LanceDB but couldn't get row count")
 else:
     st.error("❌ No database connection. Please run the embedding script first.")
