@@ -11,6 +11,15 @@ __pycache__/
 template/src/lancedb/
 lancedb/
 
+.codespellignore
+
+.env.example
+
+# workflows made for langchain template which are not needed for this project
+.github/workflows/
+
+.notebooks/
+
 # C extensions
 *.so
 
