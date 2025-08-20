@@ -71,4 +71,4 @@ Chatty AI
 - **Search Results**: Adjust `num_results` in the `get_context` function
 - **Temperature**: Modify response creativity in the OpenAI API call
 
-# Made with ❤️ in Amsterdam
+### Made with ❤️ in Amsterdam
