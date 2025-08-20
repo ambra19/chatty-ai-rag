@@ -2,6 +2,8 @@
 
 Simple **Retrieval-Augmented Generation (RAG)** application that lets you chat with your documents using AI. 
 
+## Check out a quick DEMO here: [Demo](https://www.linkedin.com/posts/ambra-m-b897bb23b_i-turned-boring-company-data-into-a-chatty-activity-7360573226432815104-JGzM?utm_source=share&utm_medium=member_desktop&rcm=ACoAADu9z9kBdB7t3i1qhNvBDZ9JEZ9Jk30BsDQ)
+
 ![Chatty AI Screenshot](src/images/ChattyAI.png)
 
 ## Features
