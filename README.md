@@ -1,8 +1,10 @@
 # 🤖 Chatty AI
 
-Simple **Retrieval-Augmented Generation (RAG)** application that lets you chat with your documents using AI. Built with Streamlit, LanceDB, and OpenAI, Chatty AI provides intelligent document search and conversational AI capabilities.
+Simple **Retrieval-Augmented Generation (RAG)** application that lets you chat with your documents using AI. 
 
-## ✨ Features
+![Chatty AI Screenshot](src/images/ChattyAI.png)
+
+## Features
 
 - **📚 Document Intelligence**: Upload and chat with your documents using natural language
 - **🔍 Smart Search**: Advanced vector search powered by OpenAI embeddings
@@ -11,7 +13,7 @@ Simple **Retrieval-Augmented Generation (RAG)** application that lets you chat w
 - **🎨 Beautiful UI**: Clean, modern Streamlit interface
 - **🔒 Privacy-First**: Your documents stay local, only queries are sent to OpenAI
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 Chatty AI
@@ -21,7 +23,7 @@ Chatty AI
 └── 🌐 Web UI (Streamlit)
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
