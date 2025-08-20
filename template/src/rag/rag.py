@@ -91,7 +91,7 @@ Context:
     response = st.write_stream(stream)
     return response
 
-# Initialize Streamlit app
+# -------------------------------------- Initialize Streamlit app
 st.title("📚 Document Retrieval System")
 
 if "messages" not in st.session_state:
@@ -104,11 +104,11 @@ table, func = init_db()
 if table is not None:
     try:
         row_count = table.count_rows()
-        st.success(f"✅ Connected to database")
+        st.success(f"Connected to database")
     except Exception:
-        st.warning("⚠️ Connected to LanceDB but couldn't get row count")
+        st.warning("Connected to LanceDB but couldn't get row count")
 else:
-    st.error("❌ No database connection. Please run the embedding script first.")
+    st.error("No database connection. Please run the embedding script first.")
     st.stop()
 
 # Display previous messages

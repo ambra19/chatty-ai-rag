@@ -14,6 +14,8 @@ lancedb/
 # C extensions
 *.so
 
+.DS_Store
+
 # Distribution / packaging
 .Python
 build/
@@ -62,6 +64,9 @@ cover/
 # Translations
 *.mo
 *.pot
+
+.langgraph_api/
+agent.egg-info/
 
 # Django stuff:
 *.log
